@@ -15,7 +15,7 @@ jobs:
       - name: Version resolution resolves latest + pinned
         run: |
           node -e "require('./main.js').resolveVersion('latest').then(v => { if (!/^\d+\.\d+\.\d+$/.test(v)) throw new Error('bad latest: '+v); console.log('latest ->', v); })"
-          node -e "require('./main.js').resolveVersion('v1.70.3').then(v => { if (v !== '1.70.3') throw new Error('bad pin: '+v); console.log('pinned ->', v); })"
+          node -e "require('./main.js').resolveVersion('v9.9.9').then(v => { if (v !== '9.9.9') throw new Error('bad pin: '+v); console.log('pinned ->', v); })"
 
   install:
     strategy:
@@ -24,7 +24,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: ./ 
+      - uses: ./
         with:
-          version: '1.70.3'
+          version: 'latest'
       - run: govard version
