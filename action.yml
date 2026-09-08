@@ -1,0 +1,9 @@
+name: Setup Govard
+description: Install the Govard CLI with version pinning via the npm wrapper
+inputs:
+  version:
+    description: Govard version (e.g. 1.70.3) or 'latest'
+    default: latest
+runs:
+  using: node20
+  main: main.js

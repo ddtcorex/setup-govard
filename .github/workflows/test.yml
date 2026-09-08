@@ -1,0 +1,30 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  resolve-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Version resolution resolves latest + pinned
+        run: |
+          node -e "require('./main.js').resolveVersion('latest').then(v => { if (!/^\d+\.\d+\.\d+$/.test(v)) throw new Error('bad latest: '+v); console.log('latest ->', v); })"
+          node -e "require('./main.js').resolveVersion('v1.70.3').then(v => { if (v !== '1.70.3') throw new Error('bad pin: '+v); console.log('pinned ->', v); })"
+
+  install:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./ 
+        with:
+          version: '1.70.3'
+      - run: govard version
