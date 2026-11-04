@@ -5,6 +5,7 @@
 const { execSync } = require('node:child_process');
 const fs = require('node:fs');
 const https = require('node:https');
+const path = require('node:path');
 
 function getJson(url, redirects = 5) {
   return new Promise((resolve, reject) => {
@@ -52,17 +53,25 @@ async function resolveVersion(input) {
   return String(release.tag_name).replace(/^v/, '');
 }
 
+// globalBinDir returns where npm puts global executables. npm 9 removed
+// `npm bin`, so the prefix is asked for instead: the binaries live in
+// `<prefix>/bin` on unix and directly in the prefix on Windows.
+function globalBinDir() {
+  const prefix = execSync('npm prefix -g', { encoding: 'utf8' }).trim();
+  return process.platform === 'win32' ? prefix : path.join(prefix, 'bin');
+}
+
 async function main() {
   const version = await resolveVersion(process.env.INPUT_VERSION);
   console.log(`setup-govard: installing @ddtcorex/govard@${version}`);
   execSync(`npm i -g @ddtcorex/govard@${version}`, { stdio: 'inherit' });
-  const npmBin = execSync('npm bin -g', { encoding: 'utf8' }).trim();
+  const binDir = globalBinDir();
   if (process.env.GITHUB_PATH) {
-    fs.appendFileSync(process.env.GITHUB_PATH, npmBin + '\n');
+    fs.appendFileSync(process.env.GITHUB_PATH, binDir + '\n');
   }
   execSync('govard version', {
     stdio: 'inherit',
-    env: { ...process.env, PATH: `${npmBin}:${process.env.PATH}` },
+    env: { ...process.env, PATH: `${binDir}${path.delimiter}${process.env.PATH}` },
   });
 }
 

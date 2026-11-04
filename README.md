@@ -13,10 +13,17 @@ CLI with version pinning.
 - run: govard version
 ```
 
-`latest` resolves via the GitHub Releases API (stable releases only —
-prereleases are excluded by the API). Pinned versions install
-`@ddtcorex/govard@<version>` from the public npm registry.
+`latest` resolves through the GitHub Releases API, so prereleases are excluded.
+A pinned value installs `@ddtcorex/govard@<version>` from the public npm
+registry, which is published for every stable release.
 
-> Note: the `install` CI job (tracking `latest` on 3 OSes) stays red until
-> the first stable govard release publishes the npm wrapper; the
-> `resolve-only` job is green from day one.
+The action appends the npm global bin directory to `GITHUB_PATH`, so `govard`
+stays on `PATH` for the later steps of the job. It runs on the Node 24 runtime
+and needs no Node setup of its own.
+
+## Local check
+
+```bash
+docker run --rm -v "$PWD:/action" -w /action node:24-slim \
+  sh -c 'INPUT_VERSION=1.82.0 node main.js'
+```
