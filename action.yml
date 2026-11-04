@@ -5,5 +5,8 @@ inputs:
     description: Govard version (e.g. 1.70.3) or 'latest'
     default: latest
 runs:
-  using: node20
+  using: node24
   main: main.js
+branding:
+  icon: terminal
+  color: blue

@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
       - name: Version resolution resolves latest + pinned
         run: |
           node -e "require('./main.js').resolveVersion('latest').then(v => { if (!/^\d+\.\d+\.\d+$/.test(v)) throw new Error('bad latest: '+v); console.log('latest ->', v); })"
