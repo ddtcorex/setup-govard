@@ -8,11 +8,16 @@ const https = require('node:https');
 const path = require('node:path');
 
 function getJson(url, redirects = 5) {
+  const headers = { 'User-Agent': 'setup-govard', Accept: 'application/vnd.github+json' };
+  const token = (process.env.INPUT_TOKEN || process.env.GITHUB_TOKEN || '').trim();
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
   return new Promise((resolve, reject) => {
     https
       .get(
         url,
-        { headers: { 'User-Agent': 'setup-govard', Accept: 'application/vnd.github+json' } },
+        { headers },
         (res) => {
           if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
             if (redirects <= 0) {
@@ -24,7 +29,7 @@ function getJson(url, redirects = 5) {
             return;
           }
           if (res.statusCode !== 200) {
-            reject(new Error(`GET ${url} -> ${res.statusCode}`));
+            reject(new Error(describeFailure(url, res.statusCode)));
             return;
           }
           let body = '';
@@ -42,6 +47,18 @@ function getJson(url, redirects = 5) {
       )
       .on('error', reject);
   });
+}
+
+// describeFailure turns a non-200 response into a message a user can act on.
+// The releases lookup is anonymous unless GITHUB_TOKEN is set, and the
+// anonymous quota is 60 requests per hour per address, which a shared CI
+// runner can exhaust without the caller doing anything wrong.
+function describeFailure(url, status) {
+  const message = `GET ${url} -> ${status}`;
+  if (status === 403 || status === 429) {
+    return `${message} (GitHub API quota; pass github-token to authenticate the lookup)`;
+  }
+  return message;
 }
 
 async function resolveVersion(input) {
@@ -82,4 +99,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { resolveVersion };
+module.exports = { resolveVersion, describeFailure };
