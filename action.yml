@@ -4,6 +4,10 @@ inputs:
   version:
     description: Govard version (e.g. 1.70.3) or 'latest'
     default: latest
+  token:
+    description: Token used for the GitHub release lookup, so 'latest' does not depend on the anonymous API quota. Pass ${{ github.token }}.
+    required: false
+    default: ''
 runs:
   using: node24
   main: main.js
