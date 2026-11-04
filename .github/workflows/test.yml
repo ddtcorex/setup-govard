@@ -13,6 +13,8 @@ jobs:
         with:
           node-version: 24
       - name: Version resolution resolves latest + pinned
+        env:
+          INPUT_TOKEN: ${{ github.token }}
         run: |
           node -e "require('./main.js').resolveVersion('latest').then(v => { if (!/^\d+\.\d+\.\d+$/.test(v)) throw new Error('bad latest: '+v); console.log('latest ->', v); })"
           node -e "require('./main.js').resolveVersion('v9.9.9').then(v => { if (v !== '9.9.9') throw new Error('bad pin: '+v); console.log('pinned ->', v); })"
