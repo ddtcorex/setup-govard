@@ -28,6 +28,18 @@ The action appends the npm global bin directory to `GITHUB_PATH`, so `govard`
 stays on `PATH` for the later steps of the job. It runs on the Node 24 runtime
 and needs no Node setup of its own.
 
+## What it sends
+
+Nothing about you leaves the runner. The action makes one request to the GitHub
+Releases API to resolve `latest`, and one `npm install` of `@ddtcorex/govard` from
+the public registry. With a pinned `version` the API request is skipped entirely.
+It reads no repository files, writes only the bin directory to `GITHUB_PATH`, and
+collects no telemetry.
+
+## License
+
+MIT, see [LICENSE](LICENSE). Provided as is, without warranty of any kind.
+
 ## Local check
 
 ```bash
